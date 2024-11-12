@@ -2,18 +2,23 @@
 import React, { useState, useEffect } from 'react';
 
 // Modal component
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-8 rounded shadow-lg max-w-lg w-full">
+      <div className="bg-white p-8 rounded shadow-lg max-w-lg w-full relative">
+        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-lg font-bold text-gray-500"
         >
           X
         </button>
+
+        {/* Modal Title */}
+        <div className="mb-4 text-lg font-semibold">{title}</div>
+
         {children}
       </div>
     </div>
@@ -199,7 +204,11 @@ const MenuManagement = () => {
       </div>
 
       {/* Modal for form */}
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editIndex !== null ? 'Update Menu Item' : 'Add New Menu Item'}
+      >
         <div>
           <div className="mb-2">
             <label className="block font-semibold">
@@ -231,7 +240,7 @@ const MenuManagement = () => {
 
           <div className="mb-2">
             <label className="block font-semibold">
-              Image URL <span className="text-red-500">*</span>
+              Image <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
