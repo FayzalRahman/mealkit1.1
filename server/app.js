@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db'); // Import the MySQL connection
 const app = express();
+const bcrypt = require('bcryptjs'); // For hashing passwords
+const jwt = require('jsonwebtoken'); // For generating JWT tokens
 
 app.use(express.json()); // To parse JSON requests
 app.use(cors());         // To handle cross-origin requests
@@ -89,6 +91,39 @@ app.put('/OrderManagement/:id', (req, res) => {
   });
 });
 
+// Dummy admin credentials (replace with a database check in real app)
+const adminCredentials = {
+  username: 'admin',
+  password: '$2b$10$0yM1UJf7CqaYk3kE1brdbexldz2k7P0aEzJh.bXPiFsoIm7dlCV4y', // Hashed password for 'admin123'
+};
+
+// Admin login route
+app.post('/admin/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required' });
+  }
+
+  if (username !== adminCredentials.username) {
+    return res.status(401).json({ message: 'Invalid username or password' });
+  }
+
+  bcrypt.compare(password, adminCredentials.password, (err, result) => {
+    if (err || !result) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    // Generate JWT token (you can add more security and user-specific data in the token)
+    const token = jwt.sign({ username }, 'your_jwt_secret', { expiresIn: '1h' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+    });
+  });
+});
 
 // Start the server
 const port = 5000;
