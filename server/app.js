@@ -61,6 +61,35 @@ app.delete('/MenuManagement/:id', (req, res) => {
   });
 });
 
+// Get all orders (Read)
+app.get('/OrderManagement', (req, res) => {
+  const query = 'SELECT * FROM orders';
+  db.query(query, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(200).json(result);
+  });
+});
+
+
+// Update an order status (Update)
+app.put('/OrderManagement/:id', (req, res) => {
+  const { id } = req.params;
+  const { order_status } = req.body; // Only extracting order_status
+  const query = 'UPDATE orders SET order_status = ? WHERE order_id = ?'; // Only update order_status
+  db.query(query, [order_status, id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Order not found!' });
+    }
+    res.status(200).json({ message: 'Order status updated successfully!' });
+  });
+});
+
+
 // Start the server
 const port = 5000;
 app.listen(port, () => {

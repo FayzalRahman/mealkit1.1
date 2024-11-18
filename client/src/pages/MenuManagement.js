@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Modal component
 const Modal = ({ isOpen, onClose, title, children, error }) => {
@@ -28,6 +29,36 @@ const Modal = ({ isOpen, onClose, title, children, error }) => {
   );
 };
 
+// Confirmation Modal for Delete
+const ConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-8 rounded shadow-lg max-w-sm w-full">
+        <h2 className="text-lg font-bold mb-4">Confirm Deletion</h2>
+        <p className="text-gray-700 mb-6">
+          Are you sure you want to delete this item? This action cannot be undone.
+        </p>
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={onClose}
+            className="bg-gray-200 text-gray-600 px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MenuManagement = () => {
   const [menu, setMenu] = useState([]);
   const [formData, setFormData] = useState({
@@ -42,6 +73,8 @@ const MenuManagement = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(null);
 
   // Fetch menu items from the API
   useEffect(() => {
@@ -79,7 +112,7 @@ const MenuManagement = () => {
         body: JSON.stringify(formData),
       })
         .then((response) => response.json())
-        .then((data) => {
+        .then(() => {
           setMenu(updatedMenu);
           closeModal();
         })
@@ -120,16 +153,22 @@ const MenuManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (index) => {
-    const foodId = menu[index].id;
+  const confirmDelete = (index) => {
+    setDeleteIndex(index);
+    setIsConfirmOpen(true);
+  };
+
+  const handleDelete = () => {
+    const foodId = menu[deleteIndex].id;
 
     fetch(`http://localhost:5000/MenuManagement/${foodId}`, {
       method: 'DELETE',
     })
       .then((response) => response.json())
       .then(() => {
-        const updatedMenu = menu.filter((_, i) => i !== index);
+        const updatedMenu = menu.filter((_, i) => i !== deleteIndex);
         setMenu(updatedMenu);
+        setIsConfirmOpen(false);
       })
       .catch((error) => console.error('Error deleting food item:', error));
   };
@@ -148,7 +187,44 @@ const MenuManagement = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100 py-8">
+    <div className="min-h-screen bg-gray-100">
+<header className="bg-blue-700 text-white p-3 sticky top-0 z-50 shadow-md">
+  <nav className="max-w-7xl mx-auto flex justify-between items-center">
+    <h1 className="text-xl font-semibold tracking-wide">Admin Panel</h1>
+    <div className="flex space-x-6">
+      <Link
+        to="/"
+        className="text-base font-medium hover:text-yellow-400 transition duration-300"
+      >
+        Dashboard
+      </Link>
+      <Link
+        to="/MenuManagement"
+        className="text-base font-medium hover:text-yellow-400 transition duration-300"
+      >
+        Menu Management
+      </Link>
+      <Link
+        to="/OrderManagement"
+        className="text-base font-medium hover:text-yellow-400 transition duration-300"
+      >
+        Order Management
+      </Link>
+      <Link
+        to="/AdminLogin"
+        className="text-base font-medium hover:text-yellow-400 transition duration-300"
+      >
+        Admin Login
+      </Link>
+    </div>
+  </nav>
+</header>
+
+
+
+
+
+      <div className="flex flex-col items-center py-8">
       <h1 className="text-3xl font-bold mb-8">Menu Management</h1>
 
       <button
@@ -180,7 +256,7 @@ const MenuManagement = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(index)}
+                    onClick={() => confirmDelete(index)}
                     className="bg-red-500 text-white p-2 rounded"
                   >
                     Delete
@@ -197,7 +273,7 @@ const MenuManagement = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         title={modalTitle}
-        error={error} // Pass error to modal
+        error={error}
       >
         <div>
           <div className="mb-2">
@@ -299,6 +375,14 @@ const MenuManagement = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleDelete}
+      />
+      </div>
     </div>
   );
 };
