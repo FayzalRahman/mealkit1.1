@@ -234,39 +234,57 @@ const MenuManagement = () => {
         Add New Menu Item
       </button>
 
-      <div className="w-full max-w-md">
-        {menu.length === 0 ? (
-          <p className="text-gray-500">No menu items available.</p>
-        ) : (
-          <ul>
-            {menu.map((item, index) => (
-              <li key={item.id} className="flex justify-between items-center p-4 mb-2 bg-white rounded shadow">
-                <div>
-                  <h2 className="text-xl font-bold">{item.product_name}</h2>
-                  <p>{item.category}</p>
-                  <p>{item.description}</p>
-                  <p>Price: ${item.price}</p>
-                  <p>Stock: {item.stock}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(index)}
-                    className="bg-yellow-500 text-white p-2 rounded"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => confirmDelete(index)}
-                    className="bg-red-500 text-white p-2 rounded"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+
+      <div className="w-full flex justify-center">
+  {menu.length === 0 ? (
+    <p className="text-gray-500 text-center">No menu items available.</p>
+  ) : (
+    <div className="flex flex-wrap justify-center gap-4">
+      {menu.map((item, index) => (
+        <div
+          key={item.id}
+          className="w-64 p-4 bg-white rounded shadow flex flex-col items-start"
+        >
+          <div className="w-full">
+            <img
+              className="w-full h-48 object-cover rounded"
+              src={item.image}
+              alt={item.image}
+            />
+            <h2 className="text-xl font-bold mt-2">{item.product_name}</h2>
+            <p>{item.category}</p>
+            <p>
+              {item.description.length > 25
+                ? item.description.slice(0, 25) + "....."
+                : item.description}
+            </p>
+            <p>Price: ${item.price}</p>
+            <p>Stock: {item.stock}</p>
+          </div>
+          {/* Buttons positioned at the bottom */}
+          <div className="flex space-x-2 mt-4 self-stretch">
+            <button
+              onClick={() => handleEdit(index)}
+              className="flex-grow bg-yellow-500 text-white py-2 rounded"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => confirmDelete(index)}
+              className="flex-grow bg-red-500 text-white py-2 rounded"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+
+
+
 
       {/* Modal for form */}
       <Modal
