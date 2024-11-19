@@ -31,6 +31,9 @@ const Modal = ({ isOpen, onClose, title, children, error }) => {
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 5
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     order_id: '',
     username: '',
@@ -43,6 +46,8 @@ const OrderManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
 
+
+  
   // Fetch orders from the API
   useEffect(() => {
     fetch('http://localhost:5000/OrderManagement')
@@ -50,6 +55,22 @@ const OrderManagement = () => {
       .then((data) => setOrders(data))
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
+
+  // Filter orders based on search query
+  const filteredOrders = orders.filter((order) =>
+    order.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Calculate indices for pagination
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  }; 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -155,6 +176,17 @@ const OrderManagement = () => {
       <div className="flex flex-col items-center py-8">
         <h1 className="text-3xl font-bold mb-8">Order Management</h1>
 
+        {/* Search Bar */}
+        <div className="mb-4 w-full max-w-7xl flex justify-center">
+          <input
+            type="text"
+            placeholder="Search by username"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-full max-w-lg"
+          />
+        </div>        
+
         <div className="w-full max-w-7xl overflow-x-auto">
           {orders.length === 0 ? (
             <p className="text-gray-500">No orders available.</p>
@@ -171,7 +203,7 @@ const OrderManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order, index) => (
+                {currentOrders.map((order, index) => (
                   <tr key={order.id}>
                     <td className="py-2 px-4 border-b text-center">{order.order_id}</td>
                     <td className="py-2 px-4 border-b text-center">{order.username}</td>
@@ -227,6 +259,22 @@ const OrderManagement = () => {
             </button>
           </div>
         </Modal>
+              {/* Pagination */}
+              <div className="mt-6 flex justify-center space-x-2">
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              className={`px-3 py-2 rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

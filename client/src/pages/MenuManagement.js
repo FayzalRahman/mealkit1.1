@@ -76,6 +76,11 @@ const MenuManagement = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const itemsPerPage = 5;  
+
   // Fetch menu items from the API
   useEffect(() => {
     fetch('http://localhost:5000/MenuManagement')
@@ -83,6 +88,22 @@ const MenuManagement = () => {
       .then((data) => setMenu(data))
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
+
+  // Filter menu items based on the search query
+  const filteredMenuItems = menu.filter((item) =>
+    item.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMenuItems = filteredMenuItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(filteredMenuItems.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -227,6 +248,17 @@ const MenuManagement = () => {
       <div className="flex flex-col items-center py-8">
       <h1 className="text-3xl font-bold mb-8">Menu Management</h1>
 
+        {/* Search Bar */}
+        <div className="mb-4 w-full max-w-7xl flex justify-center">
+          <input
+            type="text"
+            placeholder="Search by menu name"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-full max-w-lg"
+          />
+        </div>      
+
       <button
         onClick={handleAdd}
         className="p-2 bg-blue-500 text-white rounded mb-4"
@@ -236,11 +268,11 @@ const MenuManagement = () => {
 
 
       <div className="w-full flex justify-center">
-  {menu.length === 0 ? (
+  {currentMenuItems.length === 0 ? (
     <p className="text-gray-500 text-center">No menu items available.</p>
   ) : (
     <div className="flex flex-wrap justify-center gap-4">
-      {menu.map((item, index) => (
+      {currentMenuItems.map((item, index) => (
         <div
           key={item.id}
           className="w-64 p-4 bg-white rounded shadow flex flex-col items-start"
@@ -250,6 +282,7 @@ const MenuManagement = () => {
               className="w-full h-48 object-cover rounded"
               src={item.image}
               alt={item.image}
+              onContextMenu={(e) => e.preventDefault()} // Disable right-click
             />
             <h2 className="text-xl font-bold mt-2">{item.product_name}</h2>
             <p>{item.category}</p>
@@ -400,6 +433,22 @@ const MenuManagement = () => {
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}
       />
+              {/* Pagination */}
+              <div className="mt-6 flex justify-center space-x-2">
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              className={`px-3 py-2 rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
