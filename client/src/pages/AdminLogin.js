@@ -11,7 +11,7 @@ const AdminLogin = () => {
     e.preventDefault();
 
     // Dummy login check (replace with actual authentication logic)
-    if (username === 'admin' && password === 'admin') {
+    if (username === 'admin' && password === 'admin123') {
       // Redirect to the dashboard or another page after successful login
       // Example: history.push('/dashboard');
       alert('Login Successful');

@@ -94,7 +94,7 @@ app.put('/OrderManagement/:id', (req, res) => {
 // Dummy admin credentials (replace with a database check in real app)
 const adminCredentials = {
   username: 'admin',
-  password: '$2b$10$0yM1UJf7CqaYk3kE1brdbexldz2k7P0aEzJh.bXPiFsoIm7dlCV4y', // Hashed password for 'admin123'
+  password: '$2a$12$i4049rxXrrzyET77SuDqWeRKIPZ0QVexEOlu7R5D/AqWzw/zURkvy', // Hashed password for 'admin123'
 };
 
 // Admin login route
