@@ -26,7 +26,7 @@ app.get('/MenuManagement', (req, res) => {
   const query = 'SELECT * FROM menumanage';
   db.query(query, (err, result) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Cannot connect to the database' });
     }
     res.status(200).json(result);
   });
@@ -68,7 +68,7 @@ app.get('/OrderManagement', (req, res) => {
   const query = 'SELECT * FROM orders';
   db.query(query, (err, result) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Cannot connect to the database' });
     }
     res.status(200).json(result);
   });
